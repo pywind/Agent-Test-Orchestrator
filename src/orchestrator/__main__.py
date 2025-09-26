@@ -8,7 +8,7 @@ from .agent import run_cli
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="ReWOO LangGraph orchestrator")
+    parser = argparse.ArgumentParser(description="Asynchronous ReWOO orchestrator")
     parser.add_argument("--doc", required=True, help="Path to the document pack input")
     args = parser.parse_args()
 
