@@ -5,7 +5,7 @@ import asyncio
 from collections import defaultdict
 from typing import Awaitable, Callable, Dict, List
 
-from ..utils.state import GraphState
+from .orchestrator.utils.state import GraphState
 
 
 Callback = Callable[[GraphState], Awaitable[None]]

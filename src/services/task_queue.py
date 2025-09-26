@@ -6,7 +6,7 @@ from typing import Dict, cast
 
 from celery import Celery
 
-from ..utils.nodes import (
+from .orchestrator.utils.nodes import (
     dispatch_tools_node,
     evidence_node,
     execution_node,
@@ -18,7 +18,7 @@ from ..utils.nodes import (
     synthesis_node,
     tool_spec_node,
 )
-from ..utils.state import GraphState
+from .orchestrator.utils.state import GraphState
 
 
 celery_app = Celery("agent_test_orchestrator", broker="memory://", backend="cache+memory://")

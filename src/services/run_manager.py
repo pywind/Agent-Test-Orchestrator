@@ -2,75 +2,14 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
 import httpx
 
-from ...services import AsyncCallbackManager, AsyncDBConnector, AsyncOrchestrator
-
-STAGES = [
-    "ingest_docs",
-    "planner",
-    "emit_tool_specs",
-    "dispatch_tools",
-    "substitute_vars",
-    "synthesize_artifacts",
-    "worker_execute_suite",
-    "collect_evidence",
-    "resolver",
-    "postmortem_and_heal",
-    "completed",
-]
-
-
-class RunStatus(str, Enum):
-    """Lifecycle states for orchestration runs."""
-
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
-
-
-TERMINAL_STATES = {RunStatus.COMPLETED, RunStatus.FAILED, RunStatus.CANCELLED}
-
-
-@dataclass(slots=True)
-class RunRecord:
-    """In-memory representation of an orchestration run."""
-
-    run_id: str
-    doc_path: str
-    callback_url: Optional[str] = None
-    status: RunStatus = RunStatus.PENDING
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
-    stages: list[str] = field(default_factory=list)
-    result: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    callback_error: Optional[str] = None
-    task: Optional[asyncio.Task[None]] = None
-
-    def snapshot(self) -> Dict[str, Any]:
-        """Return a serialisable summary of the run state."""
-
-        return {
-            "run_id": self.run_id,
-            "doc_path": self.doc_path,
-            "status": self.status.value,
-            "stages": list(self.stages),
-            "result": self.result,
-            "error": self.error,
-            "callback_url": self.callback_url,
-            "callback_error": self.callback_error,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
+from . import AsyncCallbackManager, AsyncDBConnector, AsyncOrchestrator
+from ..db.schema import STAGES, RunRecord, RunStatus, TERMINAL_STATES
 
 
 class RunManager:
@@ -86,7 +25,7 @@ class RunManager:
 
         async with self._lock:
             run_key = run_id or str(uuid4())
-            if run_key in self._runs and self._runs[run_key].status not in TERMINAL_STATES:
+            if run_key in self._runs and self._runs[run_key].is_active():
                 raise ValueError(f"run_id '{run_key}' is already active")
 
             record = RunRecord(run_id=run_key, doc_path=doc_path, callback_url=callback_url)
@@ -107,15 +46,13 @@ class RunManager:
                 raise KeyError(f"run_id '{run_id}' not found")
 
             record = self._runs[run_id]
-            if record.status in TERMINAL_STATES:
+            if record.is_terminal():
                 return record
 
             if record.task and not record.task.done():
                 record.task.cancel()
 
-            record.status = RunStatus.CANCELLED
-            record.updated_at = datetime.utcnow()
-            record.error = record.error or "Run cancelled"
+            record.update_status(RunStatus.CANCELLED, "Run cancelled")
             return record
 
     async def shutdown(self) -> None:
@@ -133,33 +70,27 @@ class RunManager:
 
         for stage in STAGES:
             async def _stage_logger(_: Any, stage_name: str = stage) -> None:
-                record.stages.append(stage_name)
-                record.updated_at = datetime.utcnow()
+                record.add_stage(stage_name)
 
             await callback_manager.register(stage, _stage_logger)
 
         orchestrator = AsyncOrchestrator(callbacks=callback_manager, db=self._db)
 
-        record.status = RunStatus.RUNNING
-        record.updated_at = datetime.utcnow()
+        record.update_status(RunStatus.RUNNING)
 
         try:
             outcome = await orchestrator.run(record.doc_path, run_id=record.run_id)
             record.result = outcome.to_dict()
-            record.status = RunStatus.COMPLETED
+            record.update_status(RunStatus.COMPLETED)
             await self._send_callback(record)
         except asyncio.CancelledError:
-            record.status = RunStatus.CANCELLED
-            record.error = record.error or "Run cancelled"
+            record.update_status(RunStatus.CANCELLED, record.error or "Run cancelled")
             await self._send_callback(record)
             raise
         except Exception as exc:  # pragma: no cover - defensive
-            record.status = RunStatus.FAILED
-            record.error = str(exc)
+            record.update_status(RunStatus.FAILED, str(exc))
             await self._send_callback(record)
             raise
-        finally:
-            record.updated_at = datetime.utcnow()
 
     async def _send_callback(self, record: RunRecord) -> None:
         if not record.callback_url:

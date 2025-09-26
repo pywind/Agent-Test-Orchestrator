@@ -5,8 +5,8 @@ import asyncio
 from pathlib import Path
 from typing import Optional
 
-from .services import AsyncCallbackManager, AsyncDBConnector, AsyncOrchestrator
-from .services.workflow import celery_app
+from ..services import AsyncCallbackManager, AsyncDBConnector, AsyncOrchestrator
+from ..services.workflow import celery_app
 from .utils.state import OrchestratorOutcome
 
 

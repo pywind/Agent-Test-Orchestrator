@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import Request
 
-from ...services import AsyncDBConnector
+from ..services import AsyncDBConnector
 from ..services.run_manager import RunManager
 
 

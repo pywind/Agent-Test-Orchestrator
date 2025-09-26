@@ -11,7 +11,8 @@ from ..models.run import (
     StartRunRequest,
     StartRunResponse,
 )
-from ..services.run_manager import RunManager, RunRecord, RunStatus
+from ...db.schema import RunRecord, RunStatus
+from ...services.run_manager import RunManager
 
 router = APIRouter(tags=["runs"])
 
