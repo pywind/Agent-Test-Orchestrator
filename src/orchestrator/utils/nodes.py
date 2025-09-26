@@ -1,4 +1,4 @@
-"""LangGraph node implementations for the orchestrator."""
+"""Workflow stage implementations for the orchestrator."""
 from __future__ import annotations
 
 import json
@@ -478,7 +478,7 @@ def compute_metrics(
 
 
 # ---------------------------------------------------------------------------
-# LangGraph nodes
+# Workflow stages
 # ---------------------------------------------------------------------------
 
 

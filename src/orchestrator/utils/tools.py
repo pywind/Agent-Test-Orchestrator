@@ -1,4 +1,4 @@
-"""MCP tool stubs used by the LangGraph orchestrator."""
+"""MCP tool stubs used by the asynchronous orchestrator."""
 from __future__ import annotations
 
 import random
