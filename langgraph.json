@@ -1,0 +1,13 @@
+{
+  "graph": "orchestrator.agent:build_graph",
+  "entry_point": "ingest_docs",
+  "checkpoints": [
+    "planner",
+    "synthesize_artifacts",
+    "worker_execute_suite"
+  ],
+  "metadata": {
+    "description": "Durable LangGraph configuration for the ReWOO testing orchestrator",
+    "version": "0.1.0"
+  }
+}

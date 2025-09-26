@@ -1,0 +1,88 @@
+tools:
+  playwright.navigate:
+    description: Navigate to a URL and ensure the page is loaded.
+    args_schema:
+      url: str
+      wait_for: str
+    timeouts:
+      execution_s: 45
+      retry_s: 10
+    rate_limit:
+      calls_per_minute: 30
+      max_concurrency: 2
+    resources:
+      - web-local
+      - web-ci
+  playwright.selector_probe:
+    description: Validate selector stability with attribute and text heuristics.
+    args_schema:
+      selector: str
+      variant_strategy: str
+    timeouts:
+      execution_s: 60
+      retry_s: 15
+    rate_limit:
+      calls_per_minute: 20
+      max_concurrency: 2
+    resources:
+      - web-local
+      - web-ci
+  appium.navigate:
+    description: Launch app and navigate to target screen.
+    args_schema:
+      app_package: str
+      screen: str
+    timeouts:
+      execution_s: 90
+      retry_s: 20
+    rate_limit:
+      calls_per_minute: 15
+      max_concurrency: 1
+    resources:
+      - mobile-emu
+      - mobile-device
+  appium.selector_probe:
+    description: Validate accessibility identifier stability.
+    args_schema:
+      accessibility_id: str
+      strategy: str
+    timeouts:
+      execution_s: 75
+      retry_s: 20
+    rate_limit:
+      calls_per_minute: 15
+      max_concurrency: 1
+    resources:
+      - mobile-emu
+      - mobile-device
+  filesystem.fetch_doc:
+    description: Retrieve documentation input from repository.
+    args_schema:
+      path: str
+    timeouts:
+      execution_s: 10
+      retry_s: 5
+    rate_limit:
+      calls_per_minute: 60
+      max_concurrency: 4
+    resources:
+      - web-local
+      - web-ci
+      - mobile-emu
+      - mobile-device
+  artifact_store.persist:
+    description: Persist evidence bundle (logs, screenshots, videos).
+    args_schema:
+      path: str
+      metadata: dict
+    timeouts:
+      execution_s: 30
+      retry_s: 10
+    rate_limit:
+      calls_per_minute: 40
+      max_concurrency: 4
+    resources:
+      - web-local
+      - web-ci
+      - mobile-emu
+      - mobile-device
