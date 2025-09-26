@@ -1,0 +1,49 @@
+profiles:
+  web-local:
+    description: Local web execution with Playwright and video capture enabled.
+    browser_matrix: ["chromium", "firefox"]
+    device_matrix: []
+    media:
+      screenshots: true
+      video: true
+    network:
+      throttle: "none"
+      offline: false
+    concurrency_limit: 2
+    retries: 1
+  web-ci:
+    description: CI optimized web execution with headless browsers and reduced media capture.
+    browser_matrix: ["chromium"]
+    device_matrix: []
+    media:
+      screenshots: true
+      video: false
+    network:
+      throttle: "normal"
+      offline: false
+    concurrency_limit: 4
+    retries: 2
+  mobile-emu:
+    description: Android emulator execution via Appium with screen recordings.
+    browser_matrix: []
+    device_matrix: ["Pixel_7_API_34"]
+    media:
+      screenshots: true
+      video: true
+    network:
+      throttle: "3g"
+      offline: false
+    concurrency_limit: 1
+    retries: 2
+  mobile-device:
+    description: Physical device execution with conservative retries and full evidence capture.
+    browser_matrix: []
+    device_matrix: ["iPhone_14", "Samsung_S22"]
+    media:
+      screenshots: true
+      video: true
+    network:
+      throttle: "wifi"
+      offline: false
+    concurrency_limit: 1
+    retries: 1

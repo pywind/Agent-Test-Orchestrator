@@ -1,0 +1,8 @@
+{
+  "selectors": {
+    "AT-1": {
+      "selector": "button[data-qa='primary']",
+      "confidence": 0.8
+    }
+  }
+}
