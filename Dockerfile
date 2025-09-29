@@ -12,14 +12,11 @@ RUN apt-get update && apt-get install -y \
 # Install uv
 RUN pip install uv
 
-# Copy dependency files first for better caching
-COPY pyproject.toml uv.lock ./
-
-# Install Python dependencies using uv
-RUN uv sync --frozen
-
-# Copy the rest of the application
+# Copy the entire application
 COPY . /app
+
+# Initialize uv project and sync dependencies
+RUN uv sync --frozen
 
 # Create a non-root user
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
@@ -29,4 +26,4 @@ USER app
 EXPOSE 8000
 
 # Default command (can be overridden in docker-compose)
-CMD ["uv", "run", "uvicorn", "src.api_app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]

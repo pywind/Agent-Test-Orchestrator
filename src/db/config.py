@@ -29,11 +29,11 @@ class DatabaseConfig:
     def from_env(cls) -> DatabaseConfig:
         """Create configuration from environment variables."""
         return cls(
-            host=os.getenv("DB_HOST", "localhost"),
-            port=int(os.getenv("DB_PORT", "5432")),
-            database=os.getenv("DB_NAME", "orchestrator"),
-            username=os.getenv("DB_USER", "postgres"),
-            password=os.getenv("DB_PASSWORD"),
+            host=os.getenv("POSTGRES_HOST", os.getenv("DB_HOST", "localhost")),
+            port=int(os.getenv("POSTGRES_PORT", os.getenv("DB_PORT", "5432"))),
+            database=os.getenv("POSTGRES_DB", os.getenv("DB_NAME", "agent_orchestrator")),
+            username=os.getenv("POSTGRES_USER", os.getenv("DB_USER", "agent")),
+            password=os.getenv("POSTGRES_PASSWORD", os.getenv("DB_PASSWORD", "password")),
             schema=os.getenv("DB_SCHEMA", "orchestrator"),
             min_connections=int(os.getenv("DB_MIN_CONNECTIONS", "1")),
             max_connections=int(os.getenv("DB_MAX_CONNECTIONS", "10")),

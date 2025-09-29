@@ -35,3 +35,8 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["*"]
+
+# Ensure setuptools can find the package correctly
+[tool.setuptools.package-data]
+"*" = ["*.py", "*.sql", "*.yaml", "*.yml"]

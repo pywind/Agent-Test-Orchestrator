@@ -1,0 +1,36 @@
+# Multi-stage Dockerfile for database migrations
+# This image is specifically designed for running database migrations
+# in containerized environments with proper dependency management
+
+FROM python:3.11-slim as base
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies including PostgreSQL client
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency management
+RUN pip install uv
+
+# Copy the entire application
+COPY . /app
+
+# Initialize uv project and sync dependencies
+RUN uv sync --frozen
+
+# Make scripts executable
+RUN chmod +x scripts/*.sh scripts/*.py
+
+# Create a non-root user for security
+RUN useradd --create-home --shell /bin/bash migrations && \
+    chown -R migrations:migrations /app
+
+USER migrations
+
+
+# Default command runs migrations
+CMD ["python", "scripts/migrate.py"]
