@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from orchestrator.agent import run_orchestrator
+from services.orchestrator.agent import run_orchestrator
 
 
 @pytest.mark.parametrize("doc_path", ["examples/sample_docs/web_user_stories.md"])
