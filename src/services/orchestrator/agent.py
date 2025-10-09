@@ -3,18 +3,21 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-from ..services import AsyncCallbackManager, AsyncDBConnector, AsyncOrchestrator
-from ..services.workflow import celery_app
+from ..workflow import AsyncOrchestrator, celery_app
+
+if TYPE_CHECKING:  # pragma: no cover - only used for type checkers
+    from ..callbacks import AsyncCallbackManager
+    from ...db.db_connector import AsyncDBConnector
 from .utils.state import OrchestratorOutcome
 
 
 async def async_run_orchestrator(
     doc_path: str,
     *,
-    callbacks: Optional[AsyncCallbackManager] = None,
-    db: Optional[AsyncDBConnector] = None,
+    callbacks: Optional["AsyncCallbackManager"] = None,
+    db: Optional["AsyncDBConnector"] = None,
     run_id: Optional[str] = None,
 ) -> OrchestratorOutcome:
     orchestrator = AsyncOrchestrator(callbacks=callbacks, db=db)

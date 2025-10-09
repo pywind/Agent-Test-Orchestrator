@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from ..schema import RunStatus
+from ..db.schema import RunStatus
 
 
 class StartRunRequest(BaseModel):
